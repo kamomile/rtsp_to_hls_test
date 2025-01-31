@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Player</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+    <h1>HLS Player</h1>
+    <input type="text" id="hlsUrl" placeholder="HLS 주소 입력 (예: https://example.com/stream.m3u8)" size="50">
+    <button onclick="loadHlsStream()">재생</button>
+    <br><br>
+    <video id="video" controls width="640" height="360"></video>
+    
+    <script>
+        function loadHlsStream() {
+            const video = document.getElementById('video');
+            const url = document.getElementById('hlsUrl').value || 'http://localhost:3000/streams/index.m3u8';
+            
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(url);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                    video.play();
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', function() {
+                    video.play();
+                });
+            } else {
+                alert('HLS를 지원하지 않는 브라우저입니다. 다른 브라우저를 사용해주세요.');
+            }
+        }
+    </script>
+</body>
+</html>

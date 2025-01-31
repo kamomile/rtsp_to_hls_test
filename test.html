@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTSP to HLS</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body>
+  <h1>RTSP to HLS Stream</h1>
+  <input type="text" id="rtspInput" placeholder="Enter RTSP URL" />
+  <button id="startStream">Start Stream</button>
+  <video id="video" controls width="800" height="450"></video>
+
+  <script>
+    const rtspInput = document.getElementById("rtspInput");
+    const startStreamButton = document.getElementById("startStream");
+    const video = document.getElementById("video");
+
+    startStreamButton.addEventListener("click", async () => {
+      const rtspUrl = rtspInput.value;
+
+      if (!rtspUrl) {
+        alert("Please enter an RTSP URL.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/start-stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rtspUrl }),
+        });
+
+        if (response.ok) {
+          const { hlsUrl } = await response.json();
+          // HLS.js로 HLS 스트림 재생
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(`http://localhost:3000${hlsUrl}`);
+            hls.attachMedia(video);
+          } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            video.src = `http://localhost:3000${hlsUrl}`;
+          } else {
+            alert("Your browser does not support HLS.");
+          }
+        } else {
+          const error = await response.json();
+          alert(`Failed to start stream: ${error.error}`);
+        }
+      } catch (err) {
+        console.error("Error starting stream:", err);
+      }
+    });
+  </script>
+</body>
+</html>
