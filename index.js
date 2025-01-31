@@ -39,7 +39,7 @@ function startHLSStream(rtspUrl, streamId, callback) {
 //     "-hls_segment_filename", path.join(streamPath, "segment_%03d.ts"),
 //     playlistFile,
 //   ]);
-  const ffmpegProcess = spawn("./ffmpeg/ffmpeg.exe", [
+  const ffmpegProcess = spawn("./ffmpeg/bin/ffmpeg.exe", [
     "-i", rtspUrl,
     "-c:v", "libx264",
     "-preset", "veryfast",
